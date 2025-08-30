@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>Trip Splitter — Cash Pool (Mobile‑First, Live‑Sync Safe)</title>
+    <style>
+      :root {
+        --bg: #0b1025;
+        --panel: #0f172a;
+        --muted: #111827;
+        --text: #e5e7eb;
+        --sub: #94a3b8;
+        --line: #1f2937;
+        --accent: #22d3ee;
+        --accent2: #0891b2;
+        --danger: #ef4444;
+        --ok: #34d399;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
+          Cantarell, Noto Sans, sans-serif;
+        background: linear-gradient(180deg, var(--bg), #0b1330);
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 16px;
+      }
+      header {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+      .title {
+        font-size: clamp(20px, 4vw, 32px);
+        font-weight: 800;
+        line-height: 1.1;
+      }
+      .subtitle {
+        color: var(--sub);
+        font-size: 14px;
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .btn {
+        background: var(--muted);
+        color: var(--text);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .btn.primary {
+        background: linear-gradient(180deg, var(--accent2), #155e75);
+        border: 0;
+      }
+      .btn.ghost {
+        background: transparent;
+        border: 1px dashed var(--line);
+      }
+      .btn.danger {
+        background: #7f1d1d;
+        border: 1px solid #991b1b;
+      }
+      .btn.block {
+        display: block;
+        width: 100%;
+      }
+      .mini {
+        padding: 8px 10px;
+        font-size: 13px;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      }
+      .card h2 {
+        margin: 0 0 10px;
+        font-size: 18px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 12px;
+      }
+      @media (max-width: 900px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      input,
+      select {
+        background: #0c132a;
+        border: 1px solid var(--line);
+        color: var(--text);
+        padding: 12px;
+        border-radius: 12px;
+        width: 100%;
+        font-size: 16px;
+      }
+      input[type="number"] {
+        text-align: right;
+      }
+      label.small {
+        font-size: 12px;
+        color: var(--sub);
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 8px;
+      }
+      .col-12 {
+        grid-column: span 12;
+      }
+      .col-6 {
+        grid-column: span 6;
+      }
+      @media (max-width: 700px) {
+        .col-6 {
+          grid-column: span 12;
+        }
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .table th,
+      .table td {
+        border-bottom: 1px solid var(--line);
+        padding: 10px 6px;
+        text-align: left;
+        font-size: 14px;
+      }
+      .table th {
+        color: #cbd5e1;
+        font-weight: 700;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        background: #0b3a3f;
+        border: 1px solid #114c54;
+        border-radius: 999px;
+        color: #c7f9ff;
+        font-size: 14px;
+      }
+
+      .kpi {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+      .kpi .item {
+        background: #0c132a;
+        border: 1px solid var(--line);
+        padding: 12px;
+        border-radius: 14px;
+      }
+      .kpi .item .v {
+        font-size: 18px;
+        font-weight: 800;
+      }
+      @media (max-width: 700px) {
+        .kpi {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .balances .pos {
+        color: var(--ok);
+      }
+      .balances .neg {
+        color: var(--danger);
+      }
+
+      .sticky-cta {
+        position: sticky;
+        bottom: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(11, 16, 37, 0),
+          rgba(11, 16, 37, 0.9) 40%,
+          rgba(11, 16, 37, 1)
+        );
+        padding-top: 8px;
+        margin-top: 8px;
+      }
+
+      footer {
+        opacity: 0.7;
+        margin: 16px 0 8px;
+        font-size: 12px;
+      }
+    </style>
+    <!-- Firebase (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div>
+          <div class="title">Trip Splitter</div>
+          <div class="subtitle">
+            Shared cash kitty with per‑expense participants. Mobile‑friendly +
+            optional live sync.
+          </div>
+        </div>
+        <div class="toolbar">
+          <button class="btn mini ghost" id="copyLinkBtn">
+            Copy invite link
+          </button>
+          <button class="btn mini" id="newTripBtn">New trip</button>
+          <button class="btn mini ghost" id="exportBtn">Export JSON</button>
+          <label class="btn mini ghost"
+            >Import JSON
+            <input
+              type="file"
+              id="importFile"
+              accept="application/json"
+              style="display: none"
+          /></label>
+          <button class="btn mini danger" id="resetBtn">Reset</button>
+        </div>
+      </header>
+
+      <section class="card">
+        <h2>1) People & contributions</h2>
+        <div class="row">
+          <div class="col-6">
+            <label class="small">Currency</label>
+            <select id="currency">
+              <option value="€">€ Euro</option>
+              <option value="£">£ Pound</option>
+              <option value="$">$ Dollar</option>
+              <option value="₹">₹ Rupee</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="small">Treasurer (holds cash)</label>
+            <select id="treasurer"></select>
+          </div>
+          <div class="col-6">
+            <label class="small">Total kitty</label>
+            <input
+              id="totalKitty"
+              type="number"
+              step="0.01"
+              inputmode="decimal"
+            />
+          </div>
+          <div class="col-6" style="display: flex; align-items: end">
+            <button class="btn block" id="splitEqualBtn">
+              Set equal per‑person
+            </button>
+          </div>
+          <div class="col-12">
+            <button class="btn primary block" id="addPersonBtn">
+              + Add person
+            </button>
+          </div>
+          <div class="col-12">
+            <table class="table" id="peopleTable">
+              <thead>
+                <tr>
+                  <th style="width: 48%">Name</th>
+                  <th>Contribution</th>
+                  <th style="width: 80px"></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <div class="grid" style="margin-top: 12px">
+        <section class="card col-6">
+          <h2>2) Add an expense</h2>
+          <div class="row">
+            <div class="col-12">
+              <label class="small">Description</label>
+              <input id="expDesc" placeholder="e.g., Groceries" />
+            </div>
+            <div class="col-12">
+              <label class="small">Amount</label>
+              <input
+                id="expAmount"
+                type="number"
+                step="0.01"
+                inputmode="decimal"
+                placeholder="0.00"
+              />
+            </div>
+            <div class="col-12">
+              <label class="small">Paid from</label>
+              <select id="paidFrom">
+                <option value="pool">Cash pool</option>
+                <option value="person">Individual</option>
+              </select>
+            </div>
+            <div class="col-12" id="payerWrap" style="display: none">
+              <label class="small">Payer</label>
+              <select id="payer"></select>
+            </div>
+            <div class="col-12">
+              <label class="small">Who benefited?</label>
+              <div id="participants" class="chips"></div>
+            </div>
+            <div class="col-12 sticky-cta">
+              <div style="display: flex; gap: 8px">
+                <button class="btn primary" style="flex: 1" id="addExpenseBtn">
+                  Add expense
+                </button>
+                <button class="btn" id="allBtn">All</button>
+                <button class="btn" id="noneBtn">None</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card col-6">
+          <h2>Expenses</h2>
+          <div style="max-height: 360px; overflow: auto; padding-right: 4px">
+            <table class="table" id="expTable">
+              <thead>
+                <tr>
+                  <th>When</th>
+                  <th>Description</th>
+                  <th>From</th>
+                  <th>For</th>
+                  <th style="text-align: right">Amount</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <section class="card" style="margin-top: 12px">
+        <h2>3) Summary & settlement</h2>
+        <div class="kpi">
+          <div class="item">
+            <div class="small">Total contributions</div>
+            <div class="v" id="kpiContrib">—</div>
+          </div>
+          <div class="item">
+            <div class="small">Spent from pool</div>
+            <div class="v" id="kpiSpentPool">—</div>
+          </div>
+          <div class="item">
+            <div class="small">Remaining pool</div>
+            <div class="v" id="kpiRemain">—</div>
+          </div>
+          <div class="item">
+            <div class="small">Expenses count</div>
+            <div class="v" id="kpiCount">—</div>
+          </div>
+        </div>
+        <div class="grid" style="margin-top: 10px; gap: 10px">
+          <div class="card col-6" style="background: #0c132a">
+            <h3 style="margin: 0 0 8px">Per‑person balances</h3>
+            <div id="balances" class="balances"></div>
+          </div>
+          <div class="card col-6" style="background: #0c132a">
+            <h3 style="margin: 0 0 8px">Who pays whom</h3>
+            <div id="settlement"></div>
+          </div>
+        </div>
+        <footer>
+          Tip: Negatives pay the Treasurer; positives receive. Remaining pool =
+          cash physically left.
+        </footer>
+      </section>
+    </div>
+
+    <script>
+      // =========================
+      // State & utilities
+      // =========================
+      const state = {
+        currency: "€",
+        people: [],
+        treasurerId: null,
+        expenses: [],
+      };
+      const el = (s) => document.querySelector(s);
+      const fmt = (n) => state.currency + " " + (Number(n) || 0).toFixed(2);
+      const uid = () => Math.random().toString(36).slice(2, 9);
+      let currentSelected = new Set(); // participant selection
+      let lastSeenHash = null; // last state seen from Firestore
+      let lastSentHash = null; // last state we wrote to Firestore
+      const stateHash = (s) => JSON.stringify(s);
+
+      function save() {
+        localStorage.setItem("trip-splitter-cash", JSON.stringify(state));
+      }
+      function load() {
+        const raw = localStorage.getItem("trip-splitter-cash");
+        if (raw) {
+          try {
+            Object.assign(state, JSON.parse(raw));
+          } catch (e) {}
+        }
+      }
+      function freshSix() {
+        state.currency = "€";
+        state.people = Array.from({ length: 6 }, (_, i) => ({
+          id: uid(),
+          name: `Person ${i + 1}`,
+          contribution: 266.67,
+        }));
+        state.treasurerId = state.people[0].id;
+        state.expenses = [];
+        currentSelected = new Set(state.people.map((p) => p.id));
+      }
+
+      // =========================
+      // Firebase live sync (optional)
+      // =========================
+      const firebaseConfig = {
+        apiKey: "AIzaSyC71Y8evep8IJ76pIqqms8BqAPUn0rTTa0",
+        authDomain: "expenses-a9099.firebaseapp.com",
+        projectId: "expenses-a9099",
+        storageBucket: "expenses-a9099.firebasestorage.app",
+        messagingSenderId: "136768127245",
+        appId: "1:136768127245:web:e09fe246fafcd4036af044",
+        measurementId: "G-YKSXGLKTR1",
+      };
+      let db = null;
+      let tripId = location.hash.replace("#", "") || null;
+      let unsub = null;
+      let applyingRemote = false;
+      function hasFirebase() {
+        return (
+          typeof firebase !== "undefined" &&
+          firebaseConfig &&
+          firebaseConfig.projectId
+        );
+      }
+      async function ensureAuth() {
+        try {
+          await firebase.auth().signInAnonymously();
+        } catch (e) {
+          console.warn("Anon auth failed", e);
+        }
+      }
+      function debounce(fn, ms) {
+        let t;
+        return (...a) => {
+          clearTimeout(t);
+          t = setTimeout(() => fn(...a), ms);
+        };
+      }
+
+      async function ensureTrip() {
+        if (!hasFirebase()) return;
+        if (!firebase.apps || !firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+        }
+        db = firebase.firestore();
+        await ensureAuth();
+        if (!tripId) {
+          tripId = Math.random().toString(36).slice(2, 10);
+          location.hash = "#" + tripId;
+        }
+        const ref = db.collection("trips").doc(tripId);
+        const snap = await ref.get();
+        if (!snap.exists) {
+          await ref.set({ state });
+        } else {
+          const remote = snap.data()?.state;
+          if (remote) {
+            Object.assign(state, remote);
+          }
+        }
+
+        unsub = ref.onSnapshot((s) => {
+          const data = s.data();
+          if (!data || !data.state) return;
+          const incomingHash = stateHash(data.state);
+          if (incomingHash === lastSeenHash) return; // ignore duplicate snapshot
+          lastSeenHash = incomingHash;
+          if (applyingRemote) return;
+          applyingRemote = true;
+          try {
+            const ae = document.activeElement;
+            const isEditingName =
+              ae && ae.classList && ae.classList.contains("nameInput");
+            const isUsingTreasurer = ae && ae.id === "treasurer";
+
+            Object.assign(state, data.state);
+
+            if (isEditingName || isUsingTreasurer) {
+              // light update: don't rebuild inputs while user interacts
+              compute();
+              save();
+            } else {
+              renderAll();
+            }
+          } finally {
+            applyingRemote = false;
+          }
+        });
+
+        const debounced = debounce(async () => {
+          if (applyingRemote) return;
+          const outgoingHash = stateHash(state);
+          if (outgoingHash === lastSentHash) return; // nothing changed
+          lastSentHash = outgoingHash;
+          await ref.set({ state }, { merge: true });
+        }, 350);
+
+        window.save = function () {
+          localStorage.setItem("trip-splitter-cash", JSON.stringify(state));
+          debounced();
+        };
+      }
+
+      // =========================
+      // Renderers
+      // =========================
+      function renderPeople() {
+        const tbody = el("#peopleTable tbody");
+        tbody.innerHTML = "";
+        state.people.forEach((p) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+      <td><input value="${p.name}" data-id="${p.id}" class="nameInput"/></td>
+      <td><input type="number" step="0.01" inputmode="decimal" value="${
+        p.contribution
+      }" data-id="${p.id}" class="contribInput"/></td>
+      <td style="text-align:right"><button class="btn mini danger" data-id="${
+        p.id
+      }" ${state.people.length <= 1 ? "disabled" : ""}>Delete</button></td>`;
+          tbody.appendChild(tr);
+        });
+        // update selects while preserving current value (prevents flicker)
+        const treasSel = el("#treasurer");
+        const payerSel = el("#payer");
+        [treasSel, payerSel].forEach((sel) => {
+          const prev = sel.value;
+          sel.innerHTML = "";
+          state.people.forEach((p) => {
+            const o = document.createElement("option");
+            o.value = p.id;
+            o.textContent = p.name;
+            sel.appendChild(o);
+          });
+          sel.value =
+            prev && state.people.some((p) => p.id === prev)
+              ? prev
+              : state.treasurerId || state.people[0]?.id;
+        });
+        state.treasurerId = treasSel.value;
+
+        renderParticipantChips();
+
+        // save on blur (no full re-render)
+        tbody.querySelectorAll(".nameInput").forEach((inp) => {
+          inp.addEventListener("blur", (e) => {
+            const p = state.people.find((x) => x.id === e.target.dataset.id);
+            if (p) {
+              p.name = e.target.value; // update option labels directly
+              [treasSel, payerSel].forEach((sel) => {
+                const opt = [...sel.options].find((o) => o.value === p.id);
+                if (opt) opt.textContent = p.name;
+              });
+              compute();
+              save();
+            }
+          });
+        });
+        tbody.querySelectorAll(".contribInput").forEach((inp) => {
+          inp.addEventListener("blur", (e) => {
+            const p = state.people.find((x) => x.id === e.target.dataset.id);
+            if (p) {
+              p.contribution = Number(e.target.value) || 0;
+              el("#totalKitty").value = state.people
+                .reduce((a, p) => a + (Number(p.contribution) || 0), 0)
+                .toFixed(2);
+              compute();
+              save();
+            }
+          });
+        });
+      }
+
+      function renderParticipantChips() {
+        const box = el("#participants");
+        box.innerHTML = "";
+        if (!currentSelected || currentSelected.size === 0) {
+          currentSelected = new Set(state.people.map((p) => p.id));
+        }
+        state.people.forEach((p) => {
+          const id = `chk-${p.id}`;
+          const w = document.createElement("label");
+          w.className = "chip";
+          const checked = currentSelected.has(p.id) ? "checked" : "";
+          w.innerHTML = `<input type="checkbox" id="${id}" data-id="${p.id}" ${checked} style="width:18px; height:18px"> ${p.name}`;
+          box.appendChild(w);
+        });
+      }
+
+      function renderExpenses() {
+        const tbody = el("#expTable tbody");
+        tbody.innerHTML = "";
+        state.expenses
+          .sort((a, b) => a.ts - b.ts)
+          .forEach((e) => {
+            const forNames = e.participantIds
+              .map((id) => state.people.find((p) => p.id === id)?.name || "—")
+              .join(", ");
+            const paidLabel =
+              e.paidFrom === "pool"
+                ? "Pool"
+                : `Indiv (${
+                    state.people.find((p) => p.id === e.payerId)?.name || "—"
+                  })`;
+            const tr = document.createElement("tr");
+            const d = new Date(e.ts);
+            tr.innerHTML = `
+      <td>${d.toLocaleDateString()} ${d.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}</td>
+      <td>${e.desc || "(no description)"}</td>
+      <td>${paidLabel}</td>
+      <td>${forNames}</td>
+      <td style="text-align:right">${fmt(e.amount)}</td>
+      <td style="text-align:right"><button class="btn mini danger delExp" data-id="${
+        e.id
+      }">Delete</button></td>`;
+            tbody.appendChild(tr);
+          });
+      }
+
+      // =========================
+      // Computations & summary
+      // =========================
+      function compute() {
+        const bal = Object.fromEntries(
+          state.people.map((p) => [p.id, Number(p.contribution) || 0])
+        );
+        let spentPool = 0;
+        state.expenses.forEach((e) => {
+          const parts = e.participantIds.length || 1;
+          const share = (Number(e.amount) || 0) / parts;
+          if (e.paidFrom === "pool") {
+            spentPool += Number(e.amount) || 0;
+            e.participantIds.forEach((pid) => (bal[pid] -= share));
+          } else {
+            e.participantIds.forEach((pid) => (bal[pid] -= share));
+            if (e.payerId) {
+              bal[e.payerId] += Number(e.amount) || 0;
+            }
+          }
+        });
+        const totalContrib = state.people.reduce(
+          (a, p) => a + (Number(p.contribution) || 0),
+          0
+        );
+        const remaining = totalContrib - spentPool;
+        el("#kpiContrib").textContent = fmt(totalContrib);
+        el("#kpiSpentPool").textContent = fmt(spentPool);
+        el("#kpiRemain").textContent = fmt(remaining);
+        el("#kpiCount").textContent = state.expenses.length;
+        const balBox = el("#balances");
+        balBox.innerHTML = "";
+        state.people.forEach((p) => {
+          const v = bal[p.id];
+          const row = document.createElement("div");
+          row.style.display = "flex";
+          row.style.justifyContent = "space-between";
+          row.style.padding = "8px 0";
+          row.innerHTML = `<span>${p.name}</span><strong class="${
+            v >= 0 ? "pos" : "neg"
+          }">${v >= 0 ? "+" : ""}${fmt(v)}</strong>`;
+          balBox.appendChild(row);
+        });
+        const treas = state.treasurerId;
+        const pos = [],
+          neg = [];
+        Object.entries(bal).forEach(([pid, v]) => {
+          if (pid === treas) return;
+          if (v > 0.005) pos.push({ pid, amt: v });
+          else if (v < -0.005) neg.push({ pid, amt: -v });
+        });
+        const treasBal = bal[treas] || 0;
+        const setBox = el("#settlement");
+        setBox.innerHTML = "";
+        if (!pos.length && !neg.length) {
+          setBox.innerHTML = '<div class="subtitle">All settled. 🎉</div>';
+        } else {
+          const ul = document.createElement("ul");
+          ul.style.listStyle = "none";
+          ul.style.padding = "0";
+          neg.forEach((n) => {
+            const name = state.people.find((p) => p.id === n.pid)?.name || "—";
+            const li = document.createElement("li");
+            li.style.margin = "6px 0";
+            li.textContent = `${name} → Treasurer: ${fmt(n.amt)}`;
+            ul.appendChild(li);
+          });
+          pos.forEach((p) => {
+            const name =
+              state.people.find((pp) => pp.id === p.pid)?.name || "—";
+            const li = document.createElement("li");
+            li.style.margin = "6px 0";
+            li.textContent = `Treasurer → ${name}: ${fmt(p.amt)}`;
+            ul.appendChild(li);
+          });
+          const li = document.createElement("li");
+          li.style.margin = "6px 0";
+          li.className = "subtitle";
+          li.textContent = `Treasurer net: ${fmt(
+            treasBal
+          )} (positive = should receive)`;
+          ul.appendChild(li);
+          setBox.appendChild(ul);
+        }
+      }
+
+      function renderAll() {
+        el("#currency").value = state.currency;
+        el("#totalKitty").value = state.people
+          .reduce((a, p) => a + (Number(p.contribution) || 0), 0)
+          .toFixed(2);
+        renderPeople();
+        renderExpenses();
+        compute();
+        save();
+      }
+
+      // =========================
+      // Events
+      // =========================
+      function copyInviteLink() {
+        const url = location.href;
+        if (navigator.clipboard) {
+          navigator.clipboard
+            .writeText(url)
+            .then(() => alert("Invite link copied"));
+        } else {
+          prompt("Copy this link:", url);
+        }
+      }
+      function newTrip() {
+        const id = Math.random().toString(36).slice(2, 10);
+        location.hash = "#" + id;
+        location.reload();
+      }
+
+      function bind() {
+        el("#copyLinkBtn").addEventListener("click", copyInviteLink);
+        el("#newTripBtn").addEventListener("click", newTrip);
+        el("#currency").addEventListener("change", (e) => {
+          state.currency = e.target.value;
+          compute();
+          save();
+        });
+        el("#treasurer").addEventListener("change", (e) => {
+          state.treasurerId = e.target.value;
+          compute();
+          save();
+        }); // no renderAll -> prevents flicker
+        el("#totalKitty").addEventListener("input", (e) => {
+          const total = Number(e.target.value) || 0;
+          const each = state.people.length ? total / state.people.length : 0;
+          state.people.forEach(
+            (p) => (p.contribution = Number(each.toFixed(2)))
+          );
+          compute();
+          save();
+        });
+        el("#addPersonBtn").addEventListener("click", () => {
+          state.people.push({
+            id: uid(),
+            name: `Person ${state.people.length + 1}`,
+            contribution: 0,
+          });
+          currentSelected.add(state.people[state.people.length - 1].id);
+          renderPeople();
+          compute();
+          save();
+        });
+        el("#peopleTable").addEventListener("click", (e) => {
+          const id = e.target.dataset.id;
+          if (e.target.tagName === "BUTTON" && id) {
+            const idx = state.people.findIndex((p) => p.id === id);
+            if (idx > -1) {
+              state.people.splice(idx, 1);
+              currentSelected.delete(id);
+              if (state.treasurerId === id) {
+                state.treasurerId = state.people[0]?.id || null;
+              }
+              renderPeople();
+              compute();
+              save();
+            }
+          }
+        });
+        el("#splitEqualBtn").addEventListener("click", () => {
+          const total =
+            Number(
+              prompt(
+                "Total kitty to split equally?",
+                el("#totalKitty").value || "1600"
+              )
+            ) || 0;
+          const each = state.people.length ? total / state.people.length : 0;
+          state.people.forEach(
+            (p) => (p.contribution = Number(each.toFixed(2)))
+          );
+          compute();
+          save();
+        });
+        el("#paidFrom").addEventListener("change", (e) => {
+          el("#payerWrap").style.display =
+            e.target.value === "person" ? "block" : "none";
+        });
+        el("#participants").addEventListener("change", (e) => {
+          if (e.target.matches('input[type="checkbox"][data-id]')) {
+            const id = e.target.dataset.id;
+            if (e.target.checked) currentSelected.add(id);
+            else currentSelected.delete(id);
+          }
+        });
+        el("#allBtn").addEventListener("click", () => {
+          currentSelected = new Set(state.people.map((p) => p.id));
+          renderParticipantChips();
+        });
+        el("#noneBtn").addEventListener("click", () => {
+          currentSelected = new Set();
+          renderParticipantChips();
+        });
+        el("#addExpenseBtn").addEventListener("click", () => {
+          const amount = Number(el("#expAmount").value);
+          if (!amount || amount <= 0) {
+            alert("Enter a valid amount");
+            return;
+          }
+          const desc = el("#expDesc").value.trim();
+          const paidFrom = el("#paidFrom").value;
+          const payerId = paidFrom === "person" ? el("#payer").value : null;
+          const selected = [...currentSelected];
+          if (selected.length === 0) {
+            alert("Select at least one participant");
+            return;
+          }
+          state.expenses.push({
+            id: uid(),
+            ts: Date.now(),
+            desc,
+            amount,
+            paidFrom,
+            payerId,
+            participantIds: selected,
+          });
+          el("#expAmount").value = "";
+          el("#expDesc").value = "";
+          renderExpenses();
+          compute();
+          save();
+        });
+        el("#expTable").addEventListener("click", (e) => {
+          if (e.target.classList.contains("delExp")) {
+            const id = e.target.dataset.id;
+            const idx = state.expenses.findIndex((x) => x.id === id);
+            if (idx > -1) {
+              state.expenses.splice(idx, 1);
+              renderExpenses();
+              compute();
+              save();
+            }
+          }
+        });
+        el("#exportBtn").addEventListener("click", () => {
+          const blob = new Blob([JSON.stringify(state, null, 2)], {
+            type: "application/json",
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "trip-splitter-cash.json";
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+        el("#importFile").addEventListener("change", (ev) => {
+          const f = ev.target.files?.[0];
+          if (!f) return;
+          const reader = new FileReader();
+          reader.onload = () => {
+            try {
+              Object.assign(state, JSON.parse(reader.result));
+              const ids = new Set(state.people.map((p) => p.id));
+              currentSelected = new Set(ids);
+              renderAll();
+            } catch (e) {
+              alert("Invalid file");
+            }
+          };
+          reader.readAsText(f);
+        });
+        el("#resetBtn").addEventListener("click", () => {
+          if (confirm("Clear all data?")) {
+            freshSix();
+            renderAll();
+          }
+        });
+      }
+
+      // =========================
+      // Init
+      // =========================
+      load();
+      if (!state.people || state.people.length === 0) {
+        freshSix();
+      } else {
+        currentSelected = new Set(state.people.map((p) => p.id));
+      }
+      window.addEventListener("DOMContentLoaded", async () => {
+        await ensureTrip();
+        bind();
+        renderAll();
+      });
+    </script>
+  </body>
+</html>
